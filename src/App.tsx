@@ -1,4 +1,4 @@
-import { World } from "./world/world";
+import { World } from "./world/World";
 
 function App() {
   return (

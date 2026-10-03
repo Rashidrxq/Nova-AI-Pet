@@ -25,21 +25,21 @@ export function World() {
       }}
       dpr={[1, 2]}
     >
+      <color attach="background" args={["#9bbbd0"]} />
+
       <ambientLight intensity={2} />
 
-      {/* TEMPORARY TEST LIGHT */}
       <directionalLight
-        position={[5, 10, 10]}
+        position={[10, 15, 10]}
         intensity={3}
       />
 
-      {/* TEMPORARY PET TEST */}
-      <Pet />
-
-      {/* Existing world */}
       <Environment />
 
       <House />
+
+      {/* NOVA TEST */}
+      <Pet />
 
       <OrbitControls
         makeDefault
