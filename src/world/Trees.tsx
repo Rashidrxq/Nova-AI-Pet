@@ -112,7 +112,11 @@ function BroadLeafTree({
 }) {
   const random = useMemo(() => seededRandom(seed), [seed]);
 
-  const branches = useMemo(() => {
+  const branches = useMemo<{
+    position: [number, number, number];
+    rotation: [number, number, number];
+    length: number;
+  }[]>(() => {
     return [
       {
         position: [-0.55, 3.25, 0],
