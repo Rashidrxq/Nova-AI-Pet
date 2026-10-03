@@ -4,6 +4,7 @@ import * as THREE from "three";
 
 import { Environment } from "./Environment";
 import { House } from "./House";
+import { Pet } from "../pet/Pet";
 
 export function World() {
   return (
@@ -39,7 +40,13 @@ export function World() {
       <House />
 
       {/* ================================
-          ARCHITECTURAL CAMERA
+          NOVA DIGITAL PET
+      ================================= */}
+
+      <Pet />
+
+      {/* ================================
+          CAMERA CONTROLS
       ================================= */}
 
       <OrbitControls
