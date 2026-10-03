@@ -6,38 +6,37 @@ import * as THREE from "three";
 ========================================================= */
 
 const grassMaterial = new THREE.MeshStandardMaterial({
-  color: "#557d3f",
+  color: "#527d45",
   roughness: 1,
 });
 
 const grassLightMaterial = new THREE.MeshStandardMaterial({
-  color: "#6f914d",
+  color: "#6f934f",
   roughness: 1,
 });
 
-const bushMaterial = new THREE.MeshStandardMaterial({
-  color: "#3f6939",
+const shrubMaterial = new THREE.MeshStandardMaterial({
+  color: "#3f693d",
   roughness: 0.95,
 });
 
-const bushDarkMaterial = new THREE.MeshStandardMaterial({
-  color: "#315533",
-  roughness: 1,
+const shrubDarkMaterial = new THREE.MeshStandardMaterial({
+  color: "#315532",
+  roughness: 0.98,
+});
+
+const bananaStemMaterial = new THREE.MeshStandardMaterial({
+  color: "#66734b",
+  roughness: 0.95,
 });
 
 const bananaLeafMaterial = new THREE.MeshStandardMaterial({
-  color: "#477842",
+  color: "#527c42",
   roughness: 0.9,
-  side: THREE.DoubleSide,
-});
-
-const stemMaterial = new THREE.MeshStandardMaterial({
-  color: "#60734a",
-  roughness: 1,
 });
 
 const soilMaterial = new THREE.MeshStandardMaterial({
-  color: "#765b43",
+  color: "#6d543c",
   roughness: 1,
 });
 
@@ -53,34 +52,45 @@ function GrassCluster({
   scale?: number;
 }) {
   const blades = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const angle = (i / 7) * Math.PI * 2;
-
-      return {
-        x: Math.cos(angle) * 0.08,
-        z: Math.sin(angle) * 0.08,
-        rotation: angle,
-        height: 0.35 + (i % 3) * 0.08,
-      };
-    });
+    return Array.from({ length: 7 }, (_, i) => ({
+      x: (Math.random() - 0.5) * 0.45,
+      z: (Math.random() - 0.5) * 0.45,
+      rotation: Math.random() * Math.PI,
+      height: 0.25 + Math.random() * 0.35,
+      width: 0.025 + Math.random() * 0.025,
+      material:
+        i % 3 === 0
+          ? grassLightMaterial
+          : grassMaterial,
+    }));
   }, []);
 
   return (
-    <group position={position} scale={scale}>
-      {blades.map((blade, i) => (
+    <group
+      position={position}
+      scale={scale}
+    >
+      {blades.map((blade, index) => (
         <mesh
-          key={i}
-          position={[blade.x, blade.height / 2, blade.z]}
-          rotation={[
-            0.18,
-            blade.rotation,
-            -0.12,
+          key={index}
+          position={[
+            blade.x,
+            blade.height / 2,
+            blade.z,
           ]}
+          rotation={[
+            0.15,
+            blade.rotation,
+            0.08,
+          ]}
+          material={blade.material}
         >
-          <planeGeometry args={[0.055, blade.height]} />
-          <primitive
-            object={i % 2 === 0 ? grassMaterial : grassLightMaterial}
-            attach="material"
+          <boxGeometry
+            args={[
+              blade.width,
+              blade.height,
+              0.025,
+            ]}
           />
         </mesh>
       ))}
@@ -89,10 +99,10 @@ function GrassCluster({
 }
 
 /* =========================================================
-   SMALL BUSH
+   SHRUB
 ========================================================= */
 
-function Bush({
+function Shrub({
   position,
   scale = 1,
 }: {
@@ -100,31 +110,37 @@ function Bush({
   scale?: number;
 }) {
   return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 0.35, 0]} castShadow>
-        <sphereGeometry args={[0.45, 8, 6]} />
-        <primitive object={bushMaterial} attach="material" />
-      </mesh>
-
+    <group
+      position={position}
+      scale={scale}
+    >
       <mesh
-        position={[-0.35, 0.25, 0.1]}
+        position={[0, 0.45, 0]}
+        material={shrubMaterial}
         castShadow
       >
-        <sphereGeometry args={[0.32, 8, 6]} />
-        <primitive
-          object={bushDarkMaterial}
-          attach="material"
+        <sphereGeometry
+          args={[0.65, 10, 7]}
         />
       </mesh>
 
       <mesh
-        position={[0.35, 0.3, -0.05]}
+        position={[-0.45, 0.35, 0.15]}
+        material={shrubDarkMaterial}
         castShadow
       >
-        <sphereGeometry args={[0.35, 8, 6]} />
-        <primitive
-          object={bushMaterial}
-          attach="material"
+        <sphereGeometry
+          args={[0.42, 9, 6]}
+        />
+      </mesh>
+
+      <mesh
+        position={[0.45, 0.3, -0.1]}
+        material={shrubMaterial}
+        castShadow
+      >
+        <sphereGeometry
+          args={[0.48, 9, 6]}
         />
       </mesh>
     </group>
@@ -144,73 +160,61 @@ function BananaPlant({
   scale?: number;
   rotation?: number;
 }) {
-  const leaves = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const angle = (i / 7) * Math.PI * 2;
-
-      return {
-        angle,
-        height: 2.0 + (i % 3) * 0.12,
-        length: 1.25 + (i % 2) * 0.25,
-      };
-    });
-  }, []);
-
   return (
     <group
       position={position}
       scale={scale}
       rotation={[0, rotation, 0]}
     >
-      {/* Main stem */}
+      {/* Stem */}
       <mesh
-        position={[0, 1.1, 0]}
-        castShadow
+        position={[0, 1.25, 0]}
+        material={bananaStemMaterial}
       >
         <cylinderGeometry
-          args={[0.13, 0.2, 2.2, 8]}
-        />
-
-        <primitive
-          object={stemMaterial}
-          attach="material"
+          args={[0.13, 0.2, 2.5, 8]}
         />
       </mesh>
 
       {/* Leaves */}
-      <group position={[0, 2.05, 0]}>
-        {leaves.map((leaf, i) => (
-          <mesh
-            key={i}
-            position={[
-              Math.cos(leaf.angle) * 0.25,
-              0,
-              Math.sin(leaf.angle) * 0.25,
-            ]}
-            rotation={[
-              0.35,
-              leaf.angle,
-              0,
-            ]}
-            castShadow
-          >
-            <planeGeometry
-              args={[leaf.length, 0.42]}
-            />
+      {Array.from({ length: 7 }).map(
+        (_, index) => {
+          const angle =
+            (index / 7) * Math.PI * 2;
 
-            <primitive
-              object={bananaLeafMaterial}
-              attach="material"
-            />
-          </mesh>
-        ))}
-      </group>
+          return (
+            <mesh
+              key={index}
+              position={[
+                Math.cos(angle) * 0.55,
+                2.5 -
+                  Math.abs(
+                    Math.sin(index * 1.7)
+                  ) *
+                    0.35,
+                Math.sin(angle) * 0.55,
+              ]}
+              rotation={[
+                0.15 + index * 0.015,
+                angle,
+                0.15,
+              ]}
+              material={bananaLeafMaterial}
+              castShadow
+            >
+              <boxGeometry
+                args={[1.9, 0.045, 0.42]}
+              />
+            </mesh>
+          );
+        }
+      )}
     </group>
   );
 }
 
 /* =========================================================
-   ORNAMENTAL PLANT
+   SMALL ORNAMENTAL PLANT
 ========================================================= */
 
 function OrnamentalPlant({
@@ -221,39 +225,47 @@ function OrnamentalPlant({
   scale?: number;
 }) {
   return (
-    <group position={position} scale={scale}>
-      {Array.from({ length: 9 }).map((_, i) => {
-        const angle = (i / 9) * Math.PI * 2;
+    <group
+      position={position}
+      scale={scale}
+    >
+      {Array.from({ length: 6 }).map(
+        (_, index) => {
+          const angle =
+            (index / 6) * Math.PI * 2;
 
-        return (
-          <mesh
-            key={i}
-            position={[
-              Math.cos(angle) * 0.18,
-              0.35,
-              Math.sin(angle) * 0.18,
-            ]}
-            rotation={[
-              0.55,
-              angle,
-              0,
-            ]}
-          >
-            <planeGeometry args={[0.12, 0.75]} />
-
-            <primitive
-              object={grassLightMaterial}
-              attach="material"
-            />
-          </mesh>
-        );
-      })}
+          return (
+            <mesh
+              key={index}
+              position={[
+                Math.cos(angle) * 0.18,
+                0.35,
+                Math.sin(angle) * 0.18,
+              ]}
+              rotation={[
+                0.35,
+                angle,
+                0.05,
+              ]}
+              material={
+                index % 2 === 0
+                  ? shrubMaterial
+                  : grassLightMaterial
+              }
+            >
+              <boxGeometry
+                args={[0.65, 0.06, 0.12]}
+              />
+            </mesh>
+          );
+        }
+      )}
     </group>
   );
 }
 
 /* =========================================================
-   SOIL PATCH
+   SMALL SOIL PATCH
 ========================================================= */
 
 function SoilPatch({
@@ -265,21 +277,12 @@ function SoilPatch({
 }) {
   return (
     <mesh
-      position={[
-        position[0],
-        0.012,
-        position[2],
-      ]}
+      position={position}
       rotation={[-Math.PI / 2, 0, 0]}
       scale={scale}
-      receiveShadow
+      material={soilMaterial}
     >
-      <circleGeometry args={[0.8, 12]} />
-
-      <primitive
-        object={soilMaterial}
-        attach="material"
-      />
+      <circleGeometry args={[0.7, 12]} />
     </mesh>
   );
 }
@@ -292,66 +295,81 @@ export function Vegetation() {
   return (
     <group>
       {/* =================================================
-          GRASS
+          GRASS CLUSTERS
       ================================================= */}
 
       <GrassCluster
-        position={[-11, 0, 8]}
-        scale={1.1}
-      />
-
-      <GrassCluster
-        position={[-8.5, 0, 10.5]}
-        scale={0.8}
-      />
-
-      <GrassCluster
-        position={[7.5, 0, 9]}
+        position={[-8.5, 0, 7.5]}
         scale={1.2}
       />
 
       <GrassCluster
-        position={[11, 0, 7]}
-        scale={0.75}
+        position={[-6.8, 0, 8.4]}
+        scale={0.8}
       />
 
       <GrassCluster
-        position={[-15, 0, 3]}
-        scale={0.9}
+        position={[7.5, 0, 7.8]}
+        scale={1.1}
       />
 
       <GrassCluster
-        position={[15, 0, 2]}
-        scale={1}
+        position={[9.2, 0, 8.6]}
+        scale={0.7}
+      />
+
+      <GrassCluster
+        position={[-15, 0, 2]}
+        scale={1.3}
+      />
+
+      <GrassCluster
+        position={[15, 0, -1]}
+        scale={1.1}
+      />
+
+      <GrassCluster
+        position={[-18, 0, -9]}
+        scale={1.5}
+      />
+
+      <GrassCluster
+        position={[18, 0, -10]}
+        scale={1.4}
       />
 
       {/* =================================================
-          BUSHES
+          SHRUBS
       ================================================= */}
 
-      <Bush
-        position={[-11.5, 0, 8.5]}
-        scale={1.1}
-      />
-
-      <Bush
-        position={[-9.5, 0, 9.8]}
+      <Shrub
+        position={[-8.5, 0, 5.8]}
         scale={0.8}
       />
 
-      <Bush
-        position={[10.5, 0, 8]}
+      <Shrub
+        position={[-6.8, 0, 6.5]}
+        scale={0.65}
+      />
+
+      <Shrub
+        position={[7.8, 0, 6.2]}
+        scale={0.9}
+      />
+
+      <Shrub
+        position={[9.5, 0, 5.7]}
+        scale={0.7}
+      />
+
+      <Shrub
+        position={[-15.5, 0, 6]}
+        scale={1.1}
+      />
+
+      <Shrub
+        position={[15.5, 0, 5]}
         scale={1}
-      />
-
-      <Bush
-        position={[13, 0, 6.5]}
-        scale={0.75}
-      />
-
-      <Bush
-        position={[-15, 0, -2]}
-        scale={1.2}
       />
 
       {/* =================================================
@@ -359,21 +377,21 @@ export function Vegetation() {
       ================================================= */}
 
       <BananaPlant
-        position={[-13, 0, -1]}
-        scale={1.15}
-        rotation={0.4}
-      />
-
-      <BananaPlant
-        position={[-11.8, 0, -0.2]}
+        position={[-15, 0, -1]}
         scale={0.9}
-        rotation={1.1}
+        rotation={0.3}
       />
 
       <BananaPlant
-        position={[13.5, 0, -2]}
+        position={[-16, 0, -2]}
+        scale={0.75}
+        rotation={1.2}
+      />
+
+      <BananaPlant
+        position={[15, 0, -4]}
         scale={1}
-        rotation={2}
+        rotation={2.1}
       />
 
       {/* =================================================
@@ -381,23 +399,18 @@ export function Vegetation() {
       ================================================= */}
 
       <OrnamentalPlant
-        position={[-4.8, 0, 6]}
+        position={[-4.5, 0, 6.3]}
+        scale={0.8}
+      />
+
+      <OrnamentalPlant
+        position={[4.8, 0, 6.2]}
         scale={0.9}
       />
 
       <OrnamentalPlant
-        position={[4.7, 0, 6.5]}
-        scale={1}
-      />
-
-      <OrnamentalPlant
-        position={[-7, 0, 8.5]}
+        position={[6.3, 0, 6.5]}
         scale={0.7}
-      />
-
-      <OrnamentalPlant
-        position={[8, 0, 8.8]}
-        scale={0.8}
       />
 
       {/* =================================================
@@ -405,23 +418,23 @@ export function Vegetation() {
       ================================================= */}
 
       <SoilPatch
-        position={[-13, 0, 5]}
+        position={[-9.5, 0.012, 7]}
+        scale={1.1}
+      />
+
+      <SoilPatch
+        position={[8.8, 0.012, 7.3]}
+        scale={0.8}
+      />
+
+      <SoilPatch
+        position={[-15.5, 0.012, 4]}
         scale={1.2}
       />
 
       <SoilPatch
-        position={[13, 0, 5]}
+        position={[16, 0.012, 3]}
         scale={0.9}
-      />
-
-      <SoilPatch
-        position={[-10, 0, -1]}
-        scale={1}
-      />
-
-      <SoilPatch
-        position={[11, 0, -3]}
-        scale={1.3}
       />
     </group>
   );
