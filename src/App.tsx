@@ -1,4 +1,5 @@
 import { World } from "./world/World";
+import { PetStateProvider } from "./pet/PetState";
 
 function App() {
   return (
@@ -9,6 +10,9 @@ function App() {
       }}
     >
       <World />
+      <PetStateProvider>
+      <World />
+    </PetStateProvider>
     </div>
   );
 }

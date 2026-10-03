@@ -1,12 +1,16 @@
 import { PetModel } from "./PetModel";
+import { PetBehavior } from "./PetBehavior";
+import { PetMovement } from "./PetMovement";
+import { PetStateProvider } from "./PetState";
 
 export function Pet() {
   return (
-    <group
-      position={[0, 0, 5]}
-      scale={1}
-    >
-      <PetModel />
-    </group>
+    <PetStateProvider>
+      <PetMovement>
+        <PetBehavior>
+          <PetModel />
+        </PetBehavior>
+      </PetMovement>
+    </PetStateProvider>
   );
 }
