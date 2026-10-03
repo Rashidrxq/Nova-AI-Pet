@@ -9,9 +9,7 @@ import { Pet } from "../pet/Pet";
 export function World() {
   return (
     <Canvas
-      shadows={{
-        type: THREE.PCFSoftShadowMap,
-      }}
+      shadows
       camera={{
         position: [12, 7, 15],
         fov: 40,
@@ -27,37 +25,30 @@ export function World() {
       }}
       dpr={[1, 2]}
     >
-      {/* ================================
-          COMPLETE WORLD
-      ================================= */}
+      <ambientLight intensity={2} />
 
+      {/* TEMPORARY TEST LIGHT */}
+      <directionalLight
+        position={[5, 10, 10]}
+        intensity={3}
+      />
+
+      {/* TEMPORARY PET TEST */}
+      <Pet />
+
+      {/* Existing world */}
       <Environment />
-
-      {/* ================================
-          MAIN HOUSE
-      ================================= */}
 
       <House />
 
-      {/* ================================
-          NOVA DIGITAL PET
-      ================================= */}
-
-      <Pet />
-
-      {/* ================================
-          CAMERA CONTROLS
-      ================================= */}
-
       <OrbitControls
         makeDefault
-        target={[0, 2.5, 0]}
-        minDistance={8}
+        target={[0, 1, 5]}
+        minDistance={3}
         maxDistance={65}
-        minPolarAngle={0.35}
+        minPolarAngle={0.2}
         maxPolarAngle={Math.PI / 2.05}
         enableDamping
-        dampingFactor={0.06}
       />
     </Canvas>
   );
