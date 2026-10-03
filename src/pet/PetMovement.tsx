@@ -1,103 +1,111 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 import * as THREE from "three";
 
 import { PetAnimation } from "./PetAnimation";
+import { usePetState } from "./PetState";
 
 interface PetMovementProps {
   children: ReactNode;
 }
 
-export function PetMovement({ children }: PetMovementProps) {
+export function PetMovement({
+  children,
+}: PetMovementProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   const target = useRef(
     new THREE.Vector3(5, 0, 7)
   );
 
-  const velocity = useRef(
+  const direction = useRef(
     new THREE.Vector3()
   );
 
-  const waitTimer = useRef(1.5);
+  const { state, setState } = usePetState();
 
-  const [isWalking, setIsWalking] = useState(false);
+  /*
+   * Choose destination whenever
+   * the dog enters WALKING.
+   */
+  useEffect(() => {
+    if (state !== "walking") return;
 
-  const chooseNewTarget = () => {
     const x = THREE.MathUtils.randFloat(-7, 7);
     const z = THREE.MathUtils.randFloat(1, 9);
 
     target.current.set(x, 0, z);
-    setIsWalking(true);
-  };
+  }, [state]);
 
   useFrame((_, delta) => {
     const group = groupRef.current;
 
     if (!group) return;
 
-    const current = group.position;
-
-    const distance = current.distanceTo(
-      target.current
-    );
-
-    // ------------------------------------------
-    // DOG REACHED DESTINATION
-    // ------------------------------------------
-
-    if (distance < 0.45) {
-      setIsWalking(false);
-
-      waitTimer.current -= delta;
-
-      if (waitTimer.current <= 0) {
-        waitTimer.current = THREE.MathUtils.randFloat(
-          1.5,
-          4
-        );
-
-        chooseNewTarget();
-      }
-
+    /*
+     * IDLE / CURIOUS / HAPPY / SLEEPING
+     * do not move around.
+     */
+    if (state !== "walking") {
       return;
     }
 
-    // ------------------------------------------
-    // WALKING
-    // ------------------------------------------
+    const distance =
+      group.position.distanceTo(
+        target.current
+      );
 
-    setIsWalking(true);
+    /*
+     * Destination reached.
+     */
+    if (distance < 0.4) {
+      setState("idle");
+      return;
+    }
 
-    const direction = new THREE.Vector3()
-      .subVectors(target.current, current)
+    /*
+     * Calculate movement direction.
+     */
+    direction.current
+      .subVectors(
+        target.current,
+        group.position
+      )
       .normalize();
 
     const speed = 1.15;
 
-    velocity.current
-      .copy(direction)
-      .multiplyScalar(speed * delta);
+    group.position.x +=
+      direction.current.x *
+      speed *
+      delta;
 
-    current.add(velocity.current);
+    group.position.z +=
+      direction.current.z *
+      speed *
+      delta;
 
-    // Keep dog on ground
-    current.y = 0;
+    group.position.y = 0;
 
-    // ------------------------------------------
-    // FACE WALKING DIRECTION
-    // ------------------------------------------
+    /*
+     * Turn toward destination.
+     */
+    const targetRotation =
+      Math.atan2(
+        direction.current.x,
+        direction.current.z
+      );
 
-    const targetRotation = Math.atan2(
-      direction.x,
-      direction.z
-    );
-
-    group.rotation.y = THREE.MathUtils.lerp(
-      group.rotation.y,
-      targetRotation,
-      5 * delta
-    );
+    group.rotation.y =
+      THREE.MathUtils.lerp(
+        group.rotation.y,
+        targetRotation,
+        6 * delta
+      );
   });
 
   return (
@@ -105,7 +113,7 @@ export function PetMovement({ children }: PetMovementProps) {
       ref={groupRef}
       position={[5, 0, 7]}
     >
-      <PetAnimation isWalking={isWalking}>
+      <PetAnimation state={state}>
         {children}
       </PetAnimation>
     </group>

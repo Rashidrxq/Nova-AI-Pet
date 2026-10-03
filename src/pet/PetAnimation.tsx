@@ -2,16 +2,19 @@ import { useFrame } from "@react-three/fiber";
 import { useRef, type ReactNode } from "react";
 import * as THREE from "three";
 
+import type { PetState } from "./PetState";
+
 interface PetAnimationProps {
   children: ReactNode;
-  isWalking: boolean;
+  state: PetState;
 }
 
 export function PetAnimation({
   children,
-  isWalking,
+  state,
 }: PetAnimationProps) {
-  const modelRef = useRef<THREE.Group>(null);
+  const modelRef =
+    useRef<THREE.Group>(null);
 
   const time = useRef(0);
 
@@ -24,76 +27,90 @@ export function PetAnimation({
 
     const t = time.current;
 
-    // ==========================================
-    // WALKING ANIMATION
-    // ==========================================
+    /*
+     * ============================
+     * WALKING
+     * ============================
+     */
+    if (state === "walking") {
+      model.position.y =
+        Math.abs(Math.sin(t * 9)) * 0.035;
 
-    if (isWalking) {
-      const walkCycle = t * 9;
+      model.rotation.z =
+        Math.sin(t * 9) * 0.025;
 
-      // Natural vertical bounce
-      const bounce =
-        Math.abs(Math.sin(walkCycle)) * 0.035;
+      model.scale.y =
+        1 + Math.sin(t * 9) * 0.015;
 
-      model.position.y = THREE.MathUtils.lerp(
-        model.position.y,
-        bounce,
-        delta * 10
-      );
-
-      // Body sway
-      const sway =
-        Math.sin(walkCycle) * 0.025;
-
-      model.rotation.z = THREE.MathUtils.lerp(
-        model.rotation.z,
-        sway,
-        delta * 8
-      );
-
-      // Slight compression
-      const scaleY =
-        1 + Math.sin(walkCycle) * 0.015;
-
-      model.scale.y = THREE.MathUtils.lerp(
-        model.scale.y,
-        scaleY,
-        delta * 10
-      );
+      return;
     }
 
-    // ==========================================
-    // IDLE ANIMATION
-    // ==========================================
+    /*
+     * ============================
+     * HAPPY
+     * ============================
+     */
+    if (state === "happy") {
+      model.position.y =
+        Math.abs(Math.sin(t * 10)) * 0.09;
 
-    else {
-      // Breathing
-      const breathing =
-        Math.sin(t * 2.2) * 0.018;
+      model.rotation.z =
+        Math.sin(t * 8) * 0.035;
 
-      model.position.y = THREE.MathUtils.lerp(
-        model.position.y,
-        breathing,
-        delta * 5
-      );
+      return;
+    }
 
-      // Gentle body movement
-      const idleSway =
-        Math.sin(t * 1.3) * 0.012;
+    /*
+     * ============================
+     * CURIOUS
+     * ============================
+     */
+    if (state === "curious") {
+      model.position.y =
+        Math.sin(t * 2) * 0.025;
 
-      model.rotation.z = THREE.MathUtils.lerp(
-        model.rotation.z,
-        idleSway,
-        delta * 4
-      );
+      model.rotation.z =
+        Math.sin(t * 2.5) * 0.08;
 
-      // Return to normal size
-      model.scale.y = THREE.MathUtils.lerp(
+      return;
+    }
+
+    /*
+     * ============================
+     * SLEEPING
+     * ============================
+     */
+    if (state === "sleeping") {
+      model.position.y =
+        Math.sin(t * 1.5) * 0.012;
+
+      model.rotation.z =
+        Math.sin(t * 1.1) * 0.015;
+
+      model.scale.y =
+        1 + Math.sin(t * 1.5) * 0.01;
+
+      return;
+    }
+
+    /*
+     * ============================
+     * IDLE
+     * ============================
+     */
+
+    model.position.y =
+      Math.sin(t * 2.2) * 0.018;
+
+    model.rotation.z =
+      Math.sin(t * 1.3) * 0.012;
+
+    model.scale.y =
+      THREE.MathUtils.lerp(
         model.scale.y,
         1,
         delta * 5
       );
-    }
   });
 
   return (

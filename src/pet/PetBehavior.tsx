@@ -1,57 +1,79 @@
-import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import * as THREE from "three";
+import { useEffect } from "react";
+import { usePetState } from "./PetState";
 
-type Props = {
+export function PetBehavior({
+  children,
+}: {
   children: React.ReactNode;
-};
+}) {
+  const {
+    state,
+    setState,
+  } = usePetState();
 
-export function PetBehavior({ children }: Props) {
-  const groupRef = useRef<THREE.Group>(null);
+  useEffect(() => {
+    if (state !== "idle") return;
 
-  const time = useRef(Math.random() * 10);
+    const timer = window.setTimeout(() => {
+      const random = Math.random();
 
-  useFrame((_, delta) => {
-    if (!groupRef.current) return;
+      if (random < 0.55) {
+        setState("walking");
+      } else if (random < 0.75) {
+        setState("curious");
+      } else if (random < 0.9) {
+        setState("sleeping");
+      } else {
+        setState("happy");
+      }
+    }, 3000 + Math.random() * 4000);
 
-    time.current += delta;
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [state, setState]);
 
-    const t = time.current;
+  useEffect(() => {
+    if (state === "walking") {
+      const timer = window.setTimeout(() => {
+        setState("idle");
+      }, 5000 + Math.random() * 4000);
 
-    // ----------------------------------------
-    // BREATHING
-    // ----------------------------------------
+      return () => {
+        window.clearTimeout(timer);
+      };
+    }
 
-    const breathing = 1 + Math.sin(t * 2.2) * 0.012;
+    if (state === "curious") {
+      const timer = window.setTimeout(() => {
+        setState("idle");
+      }, 2500);
 
-    groupRef.current.scale.set(
-      breathing,
-      1 + Math.sin(t * 2.2) * 0.008,
-      breathing
-    );
+      return () => {
+        window.clearTimeout(timer);
+      };
+    }
 
-    // ----------------------------------------
-    // SUBTLE BODY MOVEMENT
-    // ----------------------------------------
+    if (state === "happy") {
+      const timer = window.setTimeout(() => {
+        setState("idle");
+      }, 2000);
 
-    groupRef.current.rotation.y =
-      Math.sin(t * 0.45) * 0.025;
+      return () => {
+        window.clearTimeout(timer);
+      };
+    }
 
-    // Slight vertical body movement
-    groupRef.current.position.y =
-      Math.sin(t * 2.2) * 0.008;
+    if (state === "sleeping") {
+      const timer = window.setTimeout(() => {
+        setState("idle");
+      }, 8000);
 
-    // ----------------------------------------
-    // NATURAL IDLE SWAY
-    // ----------------------------------------
+      return () => {
+        window.clearTimeout(timer);
+      };
+    }
+  }, [state, setState]);
 
-    groupRef.current.rotation.z =
-      Math.sin(t * 0.7) * 0.008;
-  });
-
-  return (
-    <group ref={groupRef}>
-      {children}
-    </group>
-  );
+  return <>{children}</>;
 }
