@@ -5,6 +5,8 @@ import {
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { usePetState } from "./PetState";
+
 interface PetInteractionProps {
   children: ReactNode;
 }
@@ -13,8 +15,8 @@ export function PetInteraction({
   children,
 }: PetInteractionProps) {
   const groupRef = useRef<THREE.Group>(null);
-
   const reaction = useRef(0);
+  const { setState } = usePetState();
 
   const handleClick = (
     event: THREE.Event & {
@@ -23,7 +25,7 @@ export function PetInteraction({
   ) => {
     event.stopPropagation?.();
 
-    // Reaction lasts roughly 1.5 seconds.
+    setState("happy");
     reaction.current = 1.5;
   };
 
@@ -35,7 +37,6 @@ export function PetInteraction({
     if (reaction.current > 0) {
       reaction.current -= delta;
 
-      // Excited little bounce.
       group.position.y =
         Math.abs(
           Math.sin(
@@ -43,13 +44,11 @@ export function PetInteraction({
           )
         ) * 0.12;
 
-      // Excited side-to-side movement.
       group.rotation.z =
         Math.sin(
           (1.5 - reaction.current) * 12
         ) * 0.035;
     } else {
-      // Smoothly return to normal.
       group.position.y = THREE.MathUtils.lerp(
         group.position.y,
         0,

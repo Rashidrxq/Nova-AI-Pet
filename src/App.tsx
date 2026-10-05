@@ -9,10 +9,9 @@ function App() {
         height: "100vh",
       }}
     >
-      <World />
       <PetStateProvider>
-      <World />
-    </PetStateProvider>
+        <World />
+      </PetStateProvider>
     </div>
   );
 }

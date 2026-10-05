@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import * as THREE from "three";
 
 const ROAD_LENGTH = 40;
-const ROAD_WIDTH = 7;
 
 const ROAD_Z_START = 8.5;
 const ROAD_Z_END = 15.5;
